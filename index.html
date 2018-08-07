@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        .wrapper{
+            width: 170px;
+            margin: 20px auto;
+        }
+        .email-sug li {
+            list-style: none;
+        }
+    
+    </style>
+    
+
+</head>
+<body>
+    <div class="wrapper">
+        <input id="email-input" type="text">
+        <ul id="email-sug-wrapper" class="email-sug"></ul>
+    </div>
+    <script>
+        var postfixList = ['163.com', 'gmail.com', '126.com', 'qq.com', '263.net'];
+        var fixData = [];
+        var oInput = document.getElementById("email-input");
+        var oUl = document.getElementById("email-sug-wrapper");
+        var aLi = document.getElementsByTagName("li"); 
+        var iNew = 0;
+        (function() {
+            oInput.focus();
+            oInput.oninput = function() {
+                var value = getVal();                       
+                judge(value);
+                changeBg();
+                checked();
+                keychange()
+            }
+        })()
+        
+
+        //获取输入框内的值并进行处理
+        function getVal() {
+            var val = oInput.value;            
+            val = val.replace(/(^\s*)|(\s*$)/g, "");
+            return val
+        }
+
+        //判断输入内容是否含有@
+        function judge(val) {
+            if(val.indexOf('@') != -1) {
+                var strs = val.split("@");
+                val = strs[0];
+                changeData(strs[1])
+                creLi(val);
+            } else {
+                fixData = postfixList;
+                creLi(val);
+            }
+        }
+        
+        //检索@后相同元素
+        function changeData(str) {
+            var arr = [];
+            for(var i = 0; i < postfixList.length; i++) {
+                if(postfixList[i].indexOf(str) != -1) {
+                    arr.push(postfixList[i]);
+                }
+            }
+            if(arr.length){
+                fixData = arr;
+            } else {
+                fixData = postfixList;              
+            }   
+        }
+
+        //创建提示的邮箱信息
+        function creLi(val) {
+            oUl.innerHTML = "";
+            for(var i = 0; i < fixData.length; i++) {
+                var aLi = document.createElement("li");
+                aLi.innerHTML = val + "@" + fixData[i];
+                oUl.appendChild(aLi);
+            }           
+            show(val)
+        }
+
+        //判断value值，确ul的显示隐藏
+        function show(val) {
+            if(val != ""){                
+                oUl.style.display = 'block'
+            } else {
+                oUl.style.display = 'none'
+            }
+        }
+        
+        //划过提示背景颜色变化
+        function changeBg() {
+            for(var i = 0; i < aLi.length; i++) {
+                aLi[i].onmouseover = function() {
+                    for(var i = 0; i < aLi.length; i++) {
+                        aLi[i].style.background = ""
+                    }
+                    this.style.background = 'red'
+                } 
+            }
+        };
+
+        //选中操作
+        function checked() {
+            for(var i = 0; i < aLi.length; i++) {
+                aLi[i].onclick = function() {
+                    oInput.value = this.innerHTML;
+                    oUl.style.display = "none"
+                } 
+            }
+        }
+
+        //键盘操作
+        function keychange() {
+            aLi[iNew].style.background = "blue";
+            
+            document.onkeydown = function(ev) {
+                switch(ev.keyCode) {
+                    case 38:                      
+                       if(iNew == 0) {
+                           iNew = aLi.length - 1
+                       } else {
+                           iNew--;
+                       }
+                       ev.preventDefault(); 
+                       break;  
+                    case 40:
+                        if(iNew == (aLi.length - 1)) {
+                            iNew = 0;
+                        } else {
+                            iNew++;   
+                        }  
+                        break;       
+                }
+                for(var i = 0; i < aLi.length; i++) {
+                    aLi[i].style.background = "";
+                }
+                aLi[iNew].style.background = "blue";
+                keyEnter(ev)      
+            }
+        }
+        
+        //enter时信息进去输入框，提示框隐藏
+        function keyEnter(ev) {
+                if(ev.keyCode == 13) {
+                    oInput.value =  aLi[iNew].innerHTML;
+                    oUl.style.display = "none"
+                    document.onkeydown = null;
+                }              
+        }
+    
+    </script>
+</body>
+</html>
